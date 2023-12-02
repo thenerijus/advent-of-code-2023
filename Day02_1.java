@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Part two of
+ * Part one of
  * <a href="https://adventofcode.com/2023/day/2">Day two</a>
  *
  * @author Nerijus
