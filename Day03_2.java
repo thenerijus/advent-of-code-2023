@@ -17,9 +17,8 @@ public class Day03_2 extends Day03_1 {
     }
 
     private long getResult() {
-        EngineCell[][] engine = readEngine();
         List<EnginePartNumber> numbersNextToGear =
-                readNumbers(engine)
+                readNumbers(readEngine())
                 .stream()
                 .filter(EnginePartNumber::isAdjacentToGear)
                 .toList();

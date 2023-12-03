@@ -14,12 +14,16 @@ public class Day01_1 {
     }
 
     private int getResult() {
-        List<String> strings = Inputs.readStrings("Day01");
-        return strings.stream()
-                .map(s -> Arrays.stream(s.split(""))
-                        .filter(c -> c.matches("\\d"))
-                        .collect(Collectors.toList()))
+        return Inputs.readStrings("Day01")
+                .stream()
+                .map(this::getDigits)
                 .mapToInt(numbers -> Integer.parseInt("" + numbers.get(0) + numbers.get(numbers.size() - 1)))
                 .sum();
+    }
+
+    private List<String> getDigits(String s) {
+        return Arrays.stream(s.split(""))
+                .filter(c -> c.matches("\\d"))
+                .collect(Collectors.toList());
     }
 }

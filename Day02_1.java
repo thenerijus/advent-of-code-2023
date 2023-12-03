@@ -22,8 +22,10 @@ public class Day02_1 {
     }
 
     List<Game> getGames() {
-        List<String> games = Inputs.readStrings("Day02");
-        return games.stream().map(Game::new).toList();
+        return Inputs.readStrings("Day02")
+                .stream()
+                .map(Game::new)
+                .toList();
     }
 
     static class Game {
