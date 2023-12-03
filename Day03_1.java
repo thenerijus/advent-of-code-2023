@@ -16,37 +16,36 @@ public class Day03_1 {
         System.out.println("Sum of all of the part numbers: " + new Day03_1().getResult());
     }
 
-    private int getResult() {
-        EngineCell[][] engine = readEngine();
-        return readNumbers(engine)
+    private long getResult() {
+        return readNumbers(readEngine())
                 .stream()
-                .filter(n -> n.adjacentToSymbol(engine))
-                .mapToInt(n -> n.getValue(engine))
+                .filter(EnginePartNumber::isAdjacentToAnySymbol)
+                .mapToLong(EnginePartNumber::getNumber)
                 .sum();
     }
 
-    private List<EnginePartNumber> readNumbers(EngineCell[][] engine) {
+    List<EnginePartNumber> readNumbers(EngineCell[][] engine) {
         List<EnginePartNumber> numbers = new ArrayList<>();
         for (EngineCell[] engineRow : engine) {
-            EnginePartNumber currentNumber = null;
+            List<Coordinates> numberCoordinates = null;
             for (int x = 0; x < engineRow.length; x++) {
                 EngineCell cell = engineRow[x];
-                if (cell.isNumber()) {
-                    if (currentNumber == null) {
+                if (cell.isDigit()) {
+                    if (numberCoordinates == null) {
                         // start of new number
-                        currentNumber = new EnginePartNumber();
+                        numberCoordinates = new ArrayList<>();
                     }
                     // add current coordinated
-                    currentNumber.coordinates.add(cell.coordinates);
+                    numberCoordinates.add(cell.coordinates);
                     if (x == engineRow.length - 1) {
                         // last cell, add number
-                        numbers.add(currentNumber);
+                        numbers.add(new EnginePartNumber(numberCoordinates, engine));
                     }
                 } else {
                     // not a number, add what we have so far
-                    if (currentNumber != null) {
-                        numbers.add(currentNumber);
-                        currentNumber = null;
+                    if (numberCoordinates != null) {
+                        numbers.add(new EnginePartNumber(numberCoordinates, engine));
+                        numberCoordinates = null;
                     }
                 }
 
@@ -56,7 +55,7 @@ public class Day03_1 {
         return numbers;
     }
 
-    private EngineCell[][] readEngine() {
+    EngineCell[][] readEngine() {
         List<String> rows = Inputs.readStrings("Day03");
         EngineCell[][] engine = new EngineCell[rows.size()][rows.get(0).length()];
 
@@ -72,13 +71,19 @@ public class Day03_1 {
 
     record EngineCell(Coordinates coordinates, String value) {
         boolean isEmpty() {
-            return ".".equals(this.value);
+            return is(".");
         }
-        boolean isNumber() {
+
+        boolean isDigit() {
             return this.value.matches("\\d");
         }
+
         boolean isSymbol() {
-            return !isNumber() && !isEmpty();
+            return !isDigit() && !isEmpty();
+        }
+
+        public boolean is(String symbol) {
+            return symbol.equals(this.value);
         }
 
         @Override
@@ -87,34 +92,50 @@ public class Day03_1 {
         }
     }
 
-    record EnginePartNumber(List<Coordinates> coordinates) {
-        EnginePartNumber() {
-            this(new ArrayList<>());
+    static class EnginePartNumber {
+        List<Coordinates> numberCoordinates;
+        EngineCell[][] engine;
+
+        EnginePartNumber(List<Coordinates> numberCoordinates, EngineCell[][] engine) {
+            this.numberCoordinates = numberCoordinates;
+            this.engine = engine;
         }
 
-        EnginePartNumber(List<Coordinates> coordinates) {
-            this.coordinates = coordinates;
-        }
-
-        Set<Coordinates> getAllAdjacent(int maxX, int maxY) {
-            return this.coordinates.stream()
-                    .flatMap(c -> c.getAllValidAdjacentAndDiagonal(maxX, maxY).stream())
-                    .filter(c -> !coordinates.contains(c))
+        Set<Coordinates> getAllAdjacent() {
+            return this.numberCoordinates.stream()
+                    .flatMap(c -> c.getAllValidAdjacentAndDiagonal(engine[0].length, engine.length).stream())
+                    .filter(c -> !numberCoordinates.contains(c))
                     .collect(Collectors.toSet());
         }
 
-        int getValue(EngineCell[][] engine) {
-            return Integer.parseInt(this.coordinates
+        long getNumber() {
+            return Long.parseLong(this.numberCoordinates
                     .stream()
                     .map(c -> engine[c.y][c.x].value())
                     .collect(Collectors.joining()));
         }
 
-        public boolean adjacentToSymbol(EngineCell[][] engine) {
-            return getAllAdjacent(engine[0].length, engine.length)
+        EngineCell getAdjacentSymbol() {
+            return getAllAdjacent()
+                    .stream()
+                    .map(c -> engine[c.y][c.x])
+                    .filter(EngineCell::isSymbol)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        boolean isAdjacentToAnySymbol() {
+            return getAllAdjacent()
                     .stream()
                     .map(c -> engine[c.y][c.x])
                     .anyMatch(EngineCell::isSymbol);
+        }
+
+        boolean isAdjacentToGear() {
+            return getAllAdjacent()
+                    .stream()
+                    .map(c -> engine[c.y][c.x])
+                    .anyMatch(engineCell -> engineCell.is("*"));
         }
     }
 }
