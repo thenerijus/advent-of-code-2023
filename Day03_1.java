@@ -35,7 +35,7 @@ public class Day03_1 {
                         // start of new number
                         numberCoordinates = new ArrayList<>();
                     }
-                    // add current coordinated
+                    // add current coordinates
                     numberCoordinates.add(cell.coordinates);
                     if (x == engineRow.length - 1) {
                         // last cell, add number
