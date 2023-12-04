@@ -35,11 +35,15 @@ public class Day04_1 {
         }
 
         double score() {
-            long matches = numbers.stream().filter(n -> this.winningNumbers.contains(n)).count();
+            long matches = countMatches();
             if (matches == 0L) {
                 return 0L;
             }
             return Math.pow(2, matches - 1);
+        }
+
+        long countMatches() {
+            return numbers.stream().filter(n -> this.winningNumbers.contains(n)).count();
         }
     }
 }
