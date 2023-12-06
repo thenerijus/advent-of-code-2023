@@ -1,5 +1,4 @@
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,15 +18,19 @@ public class Day05_1 {
         String[] parts = instructions.split("\n\n");
         List<Long> seeds = Arrays.stream(parts[0].split(": ")[1].split(" ")).map(Long::parseLong).toList();
 
-        LinkedList<MappingGroup> groups = new LinkedList<>();
-        for (int i = 1; i < parts.length; i++) {
-            groups.add(new MappingGroup(parts[i]));
-        }
+        List<MappingGroup> groups = initMappingGroups(parts);
 
         return seeds.stream().mapToLong(s -> getDestination(s, groups)).min().orElseThrow();
     }
 
-    private long getDestination(Long seed, LinkedList<MappingGroup> groups) {
+    List<MappingGroup> initMappingGroups(String[] parts) {
+        return Arrays.stream(parts)
+                .skip(1)
+                .map(MappingGroup::new)
+                .collect(Collectors.toList());
+    }
+
+    long getDestination(Long seed, List<MappingGroup> groups) {
         long destination = seed;
         for (MappingGroup group : groups) {
             destination = group.getDestination(destination);
