@@ -23,7 +23,6 @@ public class Day06_1 {
             races.add(new Race(Integer.parseInt(times[i]), Integer.parseInt(distances[i])));
         }
 
-
         long result = 1;
         for (Race race : races) {
             result *= race.waysToWin();
